@@ -46,6 +46,8 @@ public final class CallRecorder {
     private RecorderEngine active;
     private boolean recording;
     private boolean busy;
+    private boolean stopRequested;
+    private int generation;
 
     public CallRecorder(Context context, String outputDir, Listener listener) {
         this(context, outputDir, listener, Mode.AUTO);
@@ -106,16 +108,36 @@ public final class CallRecorder {
             }
             active = engine;
             busy = true;
+            stopRequested = false;
+            final int gen = generation;
             new Thread(() -> {
                 try {
                     engine.start(outputDir, number, direction);
-                    recording = true;
-                    busy = false;
-                    post(listener::onRecordingStarted);
+                    main.post(() -> {
+                        if (gen != generation) {
+                            stopQuietly(engine);
+                            return;
+                        }
+                        busy = false;
+                        recording = true;
+                        if (stopRequested) {
+                            // The call ended while we were still starting.
+                            stopRequested = false;
+                            finish();
+                        } else {
+                            listener.onRecordingStarted();
+                        }
+                    });
                 } catch (Throwable t) {
-                    busy = false;
-                    active = null;
-                    post(() -> listener.onError("start failed: " + t));
+                    main.post(() -> {
+                        if (gen != generation) {
+                            return;
+                        }
+                        busy = false;
+                        stopRequested = false;
+                        active = null;
+                        listener.onError("start failed: " + t);
+                    });
                 }
             }, "callrec-start").start();
         });
@@ -123,28 +145,50 @@ public final class CallRecorder {
 
     public void onCallEnded() {
         main.post(() -> {
-            if (!recording || active == null) {
+            if (busy) {
+                stopRequested = true;
                 return;
             }
-            recording = false;
-            final RecorderEngine engine = active;
-            active = null;
-            new Thread(() -> {
-                try {
-                    report(engine.stop());
-                } catch (Throwable t) {
-                    post(() -> listener.onError("stop failed: " + t));
-                }
-            }, "callrec-stop").start();
+            finish();
         });
     }
 
-    public void release() {
-        mic.release();
-        shizuku.release();
-        active = null;
+    /** Main thread only. */
+    private void finish() {
+        if (!recording || active == null) {
+            return;
+        }
         recording = false;
-        busy = false;
+        final RecorderEngine engine = active;
+        active = null;
+        new Thread(() -> {
+            try {
+                report(engine.stop());
+            } catch (Throwable t) {
+                post(() -> listener.onError("stop failed: " + t));
+            }
+        }, "callrec-stop").start();
+    }
+
+    private static void stopQuietly(RecorderEngine engine) {
+        new Thread(() -> {
+            try {
+                engine.stop();
+            } catch (Throwable ignored) {
+            }
+        }, "callrec-stop").start();
+    }
+
+    public void release() {
+        main.post(() -> {
+            generation++;
+            mic.release();
+            shizuku.release();
+            active = null;
+            recording = false;
+            busy = false;
+            stopRequested = false;
+        });
     }
 
     private void report(RecordResult r) {
