@@ -22,4 +22,10 @@ embedded; Android doesn't let an app grant itself that access.
 Without Shizuku, use `CallRecorder.Mode.MIC`: it needs only `RECORD_AUDIO` but hears the other side
 only on speakerphone. The default `Mode.AUTO` uses Shizuku when available, otherwise the mic.
 
-Not yet verified on a handset. Check the local laws on call recording before use.
+Not yet verified on a handset.
+
+Recording calls may require the consent of all parties. You are responsible for complying with applicable law.
+
+## License
+
+MIT. Uses [Shizuku-API](https://github.com/RikkaApps/Shizuku-API) (MIT, Copyright (c) RikkaApps).
