@@ -20,7 +20,8 @@ public final class CallRecorder {
     public static final String OUT = "out";
     public static final String UNKNOWN = "call";
 
-    public enum Mode { AUTO, SHIZUKU, MIC }
+    /** AUTO prefers the Shizuku app, then built-in access ({@link BuiltinAccess}), then the microphone. */
+    public enum Mode { AUTO, SHIZUKU, BUILTIN, MIC }
 
     public interface Listener {
         void onRecordingStarted();
@@ -42,6 +43,7 @@ public final class CallRecorder {
 
     private final MicRecorder mic;
     private final ShizukuRecorder shizuku;
+    private final BuiltinRecorder builtin;
 
     private RecorderEngine active;
     private boolean recording;
@@ -60,6 +62,7 @@ public final class CallRecorder {
         this.mode = mode;
         this.mic = new MicRecorder(app);
         this.shizuku = new ShizukuRecorder(app);
+        this.builtin = new BuiltinRecorder(app);
     }
 
     public boolean isReady() {
@@ -82,10 +85,15 @@ public final class CallRecorder {
                 return mic.isReady() ? mic : null;
             case SHIZUKU:
                 return shizuku.isReady() ? shizuku : null;
+            case BUILTIN:
+                return builtin.isReady() ? builtin : null;
             case AUTO:
             default:
                 if (shizuku.isReady()) {
                     return shizuku;
+                }
+                if (builtin.isReady()) {
+                    return builtin;
                 }
                 return mic.isReady() ? mic : null;
         }
@@ -184,6 +192,7 @@ public final class CallRecorder {
             generation++;
             mic.release();
             shizuku.release();
+            builtin.release();
             active = null;
             recording = false;
             busy = false;

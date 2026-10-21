@@ -27,6 +27,12 @@ dependencies {
     api 'dev.rikka.shizuku:api:13.1.5'
     api 'dev.rikka.shizuku:provider:13.1.5'
 
+    // Built-in access: pairs with and connects to this phone's own wireless debugging, so no separate app is needed.
+    // libadb-android is used under its Apache-2.0 option; it brings spake2-android (LGPL-3.0) and BouncyCastle (MIT).
+    implementation 'com.github.MuntashirAkon:libadb-android:3.1.1'
+    implementation 'org.conscrypt:conscrypt-android:2.5.3'
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.81'
+
     testImplementation 'junit:junit:4.13.2'
 }
 

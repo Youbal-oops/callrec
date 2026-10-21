@@ -12,7 +12,7 @@ recorder.release();                                        // onDestroy
 
 Output: `{in|out|call}_{number}_{yyyyMMdd-HHmmss}.m4a`
 
-A complete, working app that uses it: [**callrec-phone**](https://github.com/Youbal-oops/callrec-phone).
+A complete, working app that uses it: [**Phone**](https://github.com/Youbal-oops/Phone).
 
 ## Add it
 

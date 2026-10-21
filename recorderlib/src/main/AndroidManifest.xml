@@ -4,6 +4,14 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
+    <!-- Built-in access (BuiltinAccess): talks only to this phone's own wireless debugging on 127.0.0.1 and
+         discovers its pairing dialog on the local network. Nothing in this library contacts any other server.
+         Android requires INTERNET for any socket, including one to the phone itself. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
     <!-- Lets CallRecorderSetup see whether the Shizuku app is installed (Android 11+ package visibility). -->
     <queries>
         <package android:name="moe.shizuku.privileged.api" />
