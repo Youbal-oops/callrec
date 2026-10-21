@@ -18,7 +18,7 @@ A complete, working app that uses it: [**Phone**](https://github.com/Youbal-oops
 
 ```gradle
 repositories { maven { url 'https://jitpack.io' } }
-dependencies { implementation 'com.github.Youbal-oops.callrec:recorderlib:0.2.0' }
+dependencies { implementation 'com.github.Youbal-oops.callrec:recorderlib:0.3.0' }
 ```
 
 `outputDir` should be the app's own folder on shared storage, `getExternalFilesDir("Recordings")`. The
@@ -54,6 +54,29 @@ store.totalBytes();
 store.delete(recording);
 store.deleteOlderThan(30, System.currentTimeMillis()); // days <= 0 keeps everything
 ```
+
+## Built-in access: no other app
+
+`BuiltinAccess` records call audio without the Shizuku app. It pairs once with the phone's own wireless debugging
+(Android 11+) using the six-digit code the phone shows, then starts a small recorder process as the shell user.
+`CallRecorder` talks to that process through a few files in your app's own folder.
+
+```java
+BuiltinAccess.state(context);   // UNSUPPORTED, NOT_PAIRED, STOPPED, RUNNING
+BuiltinAccess.discoverPairing(context, listener);       // reports the port of the "pair with code" dialog
+BuiltinAccess.pair(context, port, "123456", listener);  // pairs, then starts the recorder
+BuiltinAccess.start(context, listener);                 // after a restart (wireless debugging must be on)
+BuiltinAccess.stop(context);   BuiltinAccess.forget(context);
+```
+
+`CallRecorder.Mode.AUTO` prefers the Shizuku app, then built-in access, then the microphone. `Mode.BUILTIN` uses only
+built-in access. The library declares `INTERNET`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE` and
+`CHANGE_WIFI_MULTICAST_STATE`: Android requires `INTERNET` for any socket, even to the phone itself, and the code only
+talks to `127.0.0.1` and discovers the local pairing dialog. It also brings libadb-android (Apache-2.0 option),
+spake2-android (LGPL-3.0, used unmodified), Conscrypt (Apache-2.0) and Bouncy Castle (MIT).
+
+Like Shizuku, the recorder process does not survive a restart. A host app can show a "start again" button using `state()`.
+`ShellServer` is the process's entry point; the library starts it for you.
 
 ## Shizuku
 
