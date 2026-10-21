@@ -18,7 +18,7 @@ A complete, working app that uses it: [**Phone**](https://github.com/Youbal-oops
 
 ```gradle
 repositories { maven { url 'https://jitpack.io' } }
-dependencies { implementation 'com.github.Youbal-oops.callrec:recorderlib:0.3.0' }
+dependencies { implementation 'com.github.Youbal-oops:callrec:0.3.0' }
 ```
 
 `outputDir` should be the app's own folder on shared storage, `getExternalFilesDir("Recordings")`. The
