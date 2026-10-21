@@ -4,6 +4,11 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
+    <!-- Lets CallRecorderSetup see whether the Shizuku app is installed (Android 11+ package visibility). -->
+    <queries>
+        <package android:name="moe.shizuku.privileged.api" />
+    </queries>
+
     <application>
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
